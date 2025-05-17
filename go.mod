@@ -1,4 +1,4 @@
-module github.com/Diving-Fish/maimaidx-prober
+module github.com/Kasumi-Ushio/Ushio-Prober
 
 go 1.20
 
