@@ -46,13 +46,14 @@ func main() {
 		}
 		Log(LogLevelError, err.Error())
 		fmt.Printf("请按 Enter 键继续……")
+		fmt.Printf("Press Enter to continue...")
 		bufio.NewReader(os.Stdin).ReadString('\n')
 		os.Exit(0)
 	}
 
 	err := flagSet.Parse(os.Args[1:])
 	if err != nil {
-		commandFatal(fmt.Errorf("加载命令行参数出错，请检查您的参数"))
+		commandFatal(fmt.Errorf("加载命令行参数出错，请检查您的参数 / Load command args error, please check your args."))
 	}
 
 	cfg, err := initConfig(*configPath)
@@ -80,8 +81,10 @@ func main() {
 	}
 	proxyCtx := newProxyContext(apiClient, commandFatal, cfg.Verbose)
 
-	Log(LogLevelInfo, "使用此软件则表示您同意共享您在微信公众号舞萌 DX、中二节奏中的数据。")
-	Log(LogLevelInfo, "您可以在微信客户端访问微信公众号舞萌 DX、中二节奏的个人信息主页进行分数导入，如需退出请直接关闭程序或按下 Ctrl + C")
+	Log(LogLevelInfo, "使用此软件则表示您同意共享您在微信公众号舞萌&中二中的数据。")
+	Log(LogLevelInfo, "您可以在微信客户端访问微信公众号舞萌&中二的个人信息主页进行分数导入，如需退出请直接关闭程序或按下 Ctrl + C")
+	Log(LogLevelInfo, "By using this Proxy Tool, you agree to upload the score data in WeiXin Service Account"舞萌&中二".")
+	Log(LogLevelInfo, "You can open the player data webpage of "舞萌&中二" to import the score data. Close this window or press "Ctrl+C" to exit the Proxy Tool.")
 
 	if spm != nil {
 		spm.apply()
@@ -107,6 +110,7 @@ func main() {
 		cfg.Addr = "127.0.0.1" + cfg.Addr
 	}
 	Log(LogLevelInfo, "代理已开启到 %s", cfg.Addr)
+	Log(LogLevelInfo, "System proxy has been set to %s", cfg.Addr)
 
 	log.Fatal(http.ListenAndServe(cfg.Addr, srv))
 }

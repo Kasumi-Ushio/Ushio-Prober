@@ -21,6 +21,7 @@ type proberAPIClient struct {
 	mode     workingMode
 	maiDiffs []int
 	slice    bool
+	proberApiUrl	string
 }
 
 func newProberAPIClient(cfg *config, networkTimeout int) (*proberAPIClient, error) {
@@ -28,11 +29,12 @@ func newProberAPIClient(cfg *config, networkTimeout int) (*proberAPIClient, erro
 		"username": cfg.UserName,
 		"password": cfg.Password,
 	}
+	loginURL := fmt.Sprintf("%s/api/maimaidxprober/login", c.proberApiUrl)
 	b, err := json.Marshal(&body)
 	if err != nil {
 		return nil, fmt.Errorf("配置文件读取出错，请按照教程指示填写: %w", err)
 	}
-	resp, err := http.Post("https://www.diving-fish.com/api/maimaidxprober/login", "application/json", bytes.NewReader(b))
+	resp, err := http.Post(loginURL, "application/json", bytes.NewReader(b), proberApiUrl)
 	if err != nil {
 		return nil, fmt.Errorf("登录失败: %w", err)
 	}
@@ -48,11 +50,14 @@ func newProberAPIClient(cfg *config, networkTimeout int) (*proberAPIClient, erro
 		mode:     cfg.getWorkingMode(),
 		maiDiffs: cfg.MaiIntDiffs,
 		slice:    cfg.Slice,
+		proberApiUrl:    cfg.ProberApiUrl
 	}, nil
 }
 
 func (c *proberAPIClient) commit(data []byte) (err error) {
-	resp2, err := http.Post("http://www.diving-fish.com:8089/page", "text/plain", bytes.NewReader(data))
+	uploadURL := fmt.Sprintf("%s:8089/page", c.proberApiUrl)
+
+	resp2, err := http.Post(uploadURL, "text/plain", bytes.NewReader(data))
 	if err != nil {
 		return
 	}
@@ -60,7 +65,7 @@ func (c *proberAPIClient) commit(data []byte) (err error) {
 	if err != nil {
 		return
 	}
-	req, err := http.NewRequest(http.MethodPost, "https://www.diving-fish.com/api/maimaidxprober/player/update_records", bytes.NewReader(b))
+	req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/api/maimaidxprober/player/update_records", c.proberApiUrl), bytes.NewReader(b))
 	if err != nil {
 		return
 	}
@@ -231,7 +236,7 @@ func (c *proberAPIClient) fetchDataChuniPerDiff(headers http.Header, cookies []*
 	}
 	switch c.mode {
 	case workingModeUpdate:
-		url2 := "https://www.diving-fish.com/api/chunithmprober/player/update_records_html"
+		url2 := fmt.Sprintf("%s/api/chunithmprober/player/update_records_html", c.proberApiUrl)
 		if diff == 6 {
 			url2 += "?recent=1"
 		}

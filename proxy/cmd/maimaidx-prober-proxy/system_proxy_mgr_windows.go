@@ -6,7 +6,7 @@ import (
 
 	"golang.org/x/sys/windows/registry"
 
-	"github.com/Diving-Fish/maimaidx-prober/proxy/lib"
+	"github.com/Kasumi-Ushio/Ushio-Prober/proxy/lib"
 )
 
 type systemProxyManager struct {

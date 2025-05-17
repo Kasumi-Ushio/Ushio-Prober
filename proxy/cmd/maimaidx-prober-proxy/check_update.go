@@ -16,7 +16,7 @@ type Tag struct {
 
 func checkUpdate() {
 	// 发送 GET 请求获取 tags 列表
-	resp, err := http.Get("https://api.github.com/repos/Diving-Fish/maimaidx-prober/tags")
+	resp, err := http.Get("https://api.github.com/repos/Kasumi-Ushio/Ushio-Prober/tags")
 	if err != nil {
 		Log(LogLevelError, "Failed to get tags:", err)
 		return
@@ -41,10 +41,13 @@ func checkUpdate() {
 	// 检查当前版本是否为最新 tag
 	if version == "custom" {
 		Log(LogLevelInfo, "您使用的是自编译版本或测试版本。")
+		Log(LogLevelInfo, "You are using a beta version or a self-compiled version of the Proxy Tool.")
 	} else if version != newestTag {
 		// 如果当前版本不是最新 tag，则输出 URL
-		Log(LogLevelInfo, "新版本可用: https://github.com/Diving-Fish/maimaidx-prober/releases/tag/%s", newestTag)
+		Log(LogLevelInfo, "新版本可用: https://github.com/Kasumi-Ushio/Ushio-Prober/releases/tag/%s", newestTag)
+		Log(LogLevelInfo, "New version of Proxy Tool available: https://github.com/Kasumi-Ushio/Ushio-Prober/releases/tag/%s", newestTag)
 	} else {
 		Log(LogLevelInfo, "您使用的是最新版本。")
+		Log(LogLevelInfo, "This Proxy Tool is up to date.")
 	}
 }

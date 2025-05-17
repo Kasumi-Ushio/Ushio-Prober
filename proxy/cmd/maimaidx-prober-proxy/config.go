@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/Diving-Fish/maimaidx-prober/proxy/lib"
+	"github.com/Kasumi-Ushio/Ushio-Prober/proxy/lib"
 )
 
 type workingMode int
@@ -27,11 +27,12 @@ type config struct {
 	NoEditGlobalProxy bool     `json:"no_edit_global_proxy" default:"false"`
 	NetworkTimeout    int      `json:"timeout" default:"30"`
 	Slice             bool     `json:"slice" default:"false"`
+	ProberApiUrl	  string   `json:"prober_api_url" default:"https://www.diving-fish.com/api/maimaidxprober"`
 	// intermediate value
 	MaiIntDiffs []int
 }
 
-func (c *config) FlagOverride(set *flag.FlagSet) (err error) {
+/* func (c *config) FlagOverride(set *flag.FlagSet) (err error) {
 	set.Visit(func(f *flag.Flag) {
 		if f.Name == "v" {
 			c.Verbose = f.Value.(flag.Getter).Get().(bool)
@@ -51,6 +52,52 @@ func (c *config) FlagOverride(set *flag.FlagSet) (err error) {
 		} else if f.Name == "slice" {
 			c.Slice = f.Value.(flag.Getter).Get().(bool)
 		}
+	})
+	return
+} */
+
+func (c *config) FlagOverride(set *flag.FlagSet) (err error) {
+	set.Visit(func(f *flag.Flag) {
+		switch f.Name {
+		case "v":
+			var verbose bool
+			if err := set.Lookup("v").Value.Set(f.Value.String()); err != nil {
+				err = err
+			} else {
+				c.Verbose = verbose
+			}
+		case "addr":
+			c.Addr = f.Value.String()
+		case "no-edit-global-proxy":
+			var noEditGlobalProxy bool
+			if err := set.Lookup("no-edit-global-proxy").Value.Set(f.Value.String()); err != nil {
+				err = err
+			} else {
+				c.NoEditGlobalProxy = noEditGlobalProxy
+			}
+		case "timeout":
+			var timeout int
+			if err := set.Lookup("timeout").Value.Set(f.Value.String()); err != nil {
+				err = err
+			} else {
+				c.NetworkTimeout = timeout
+			}
+		case "mai-diffs":
+			maiDiffs := strings.Split(f.Value.String(), ",")
+			if len(maiDiffs) == 1 && maiDiffs[0] == "" {
+				maiDiffs = c.MaiDiffs
+			} else {
+				c.MaiDiffs = maiDiffs
+			}
+		case "slice":
+			var slice bool
+			if err := set.Lookup("slice").Value.Set(f.Value.String()); err != nil {
+				err = err
+			} else {
+				c.Slice = slice
+			}
+		case "prober-api-url"
+			c.ProberApiUrl = f.Value.String()
 	})
 	return
 }
@@ -94,12 +141,15 @@ func getMaiDiffs(MaiDiffs []string) (diffs []int, err error) {
 				diffStr += diffList[intDiff] + " "
 			} else {
 				Log(LogLevelWarning, "未找到 %s 难度等级，已跳过……", diff)
+				Log(LogLevelWarning, "Can not found the diff level: %s, skiped...", diff)
 			}
 		}
 		if len(diffs) == 0 {
 			Log(LogLevelWarning, "未为舞萌 DX 指定任何难度等级，导入将不会产生任何效果")
+			Log(LogLevelWarning, "You did not specific any diff level for maimai DX. Import data will make no effects.")
 		} else {
 			Log(LogLevelInfo, "您已修改舞萌的难度等级为：%s", diffStr)
+			Log(LogLevelInfo, "You have modified the maimai DX diff level to: %s", diffStr)
 		}
 	}
 	return
@@ -111,7 +161,7 @@ func initConfig(path string) (config, error) {
 		// First run
 		lib.GenerateCert()
 		os.WriteFile(path, []byte("{\"username\": \"\", \"password\": \"\"}"), 0644)
-		return config{}, fmt.Errorf("初次使用请填写 %s 文件，并依据教程完成根证书的安装。", path)
+		return config{}, fmt.Errorf("初次使用请填写 %s 文件，并依据教程完成根证书的安装。/ Please write the %s file, and import the cert file by following the guide.", path)
 	}
 
 	obj := config{
@@ -124,7 +174,7 @@ func initConfig(path string) (config, error) {
 
 	err = json.Unmarshal(b, &obj)
 	if err != nil {
-		return config{}, fmt.Errorf("配置文件格式有误，无法解析：%w。请检查 %s 文件的内容", err, path)
+		return config{}, fmt.Errorf("配置文件格式有误，无法解析：%w。请检查 %s 文件的内容 / Configuration file format was incorrect, we can not recognize: %w, please check the context in %s. ", err, path)
 	}
 
 	return obj, nil
