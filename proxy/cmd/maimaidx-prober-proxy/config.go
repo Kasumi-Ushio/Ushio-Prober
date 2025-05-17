@@ -27,7 +27,7 @@ type config struct {
 	NoEditGlobalProxy bool     `json:"no_edit_global_proxy" default:"false"`
 	NetworkTimeout    int      `json:"timeout" default:"30"`
 	Slice             bool     `json:"slice" default:"false"`
-	ProberApiUrl	  string   `json:"prober_api_url" default:"https://www.diving-fish.com/api/maimaidxprober"`
+	ProberApiUrl	  string   `json:"prober_api_url" default:"https://www.diving-fish.com"`
 	// intermediate value
 	MaiIntDiffs []int
 }
